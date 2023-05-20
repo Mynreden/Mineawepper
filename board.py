@@ -3,13 +3,13 @@ from const import *
 import random
 
 class Cube:
-    def __init__(self, position: tuple, number: int, square_size: int):
+    def __init__(self, position: tuple, number: int, square_size: int, upper_border: int = 0):
         self.position = position # (y, x)
         self.number = number
         self.is_flagged = False
         self.is_open = False
         self.image = scale(spr_grid, (square_size, square_size))
-        self.rect = pygame.Rect(position[1] * square_size, position[0] * square_size, square_size, square_size)
+        self.rect = pygame.Rect(position[1] * square_size, position[0] * square_size - upper_border, square_size, square_size)
 
     def draw(self, display: pygame.Surface):
         display.blit(self.image, self.rect)
@@ -22,11 +22,13 @@ class Board:
         self.width = width
         self.n_bombs = n_bombs
         self.square_size = square_size
+        self.upper_border = height * square_size - screen_height
+        self.squares_left = width *height - n_bombs
         self.map = []
         for i in range(self.height):
             line = []
             for j in range(self.width):
-                line.append(Cube((i, j), 0, square_size))
+                line.append(Cube((i, j), 0, square_size, self.upper_border))
             self.map.append(line)
 
     def generate(self, position: tuple):
@@ -46,20 +48,21 @@ class Board:
             for j in range(self.width):
 
                 if self.boolean_map[i + 1][j + 1]:
-                    line.append(Cube((i, j), -1, self.square_size))
+                    line.append(Cube((i, j), -1, self.square_size, self.upper_border))
                     continue
                 mines = 0
                 for n in range(i, i + 3):
                     for m in range(j, j + 3):
                         if self.boolean_map[n][m]:
                             mines += 1
-                line.append(Cube((i, j), mines, self.square_size))
+                line.append(Cube((i, j), mines, self.square_size, self.upper_border))
             self.map.append(line)
 
     def open(self, cube: Cube):
         if cube.is_flagged:
             return
         if not cube.is_open:
+            self.squares_left -= 1
             self.__open_closed_cube(cube)
         else:
             self.__open_around(cube)
@@ -87,7 +90,7 @@ class Board:
                     if not self.map[n][m].is_flagged and not self.map[n][m].is_open:
                         self.open(self.map[n][m])
 
-    def flag(self, cube: Cube):
+    def flag(self, cube: Cube) -> bool:
         if cube.is_open:
             return
         i, j = cube.position
@@ -95,10 +98,12 @@ class Board:
 
             self.map[i][j].is_flagged = True
             self.map[i][j].image = scale(spr_flag, (self.square_size,) * 2)
+            return True
         else:
             i, j = cube.position
             self.map[i][j].is_flagged = False
             self.map[i][j].image = scale(spr_grid, (self.square_size,) * 2)
+            return False
 
     def draw(self, display: pygame.Surface):
         for i in self.map:

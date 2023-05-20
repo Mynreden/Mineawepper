@@ -30,3 +30,4 @@ images = [spr_emptyGrid,
           spr_mine]
 game_settings = [(8, 8 , 10, 61), (14, 14, 40, 35), (20, 20, 99, 24)]
 WIDTH, HEIGHT, BOMBS_NUMBER, SQUARE_SIZE = game_settings[0]
+screen_height = 550
