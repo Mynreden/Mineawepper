@@ -3,8 +3,7 @@
 The game is written in Python using the PyGame library. With her help, the legendary Minesweeper game was recreated. 
 
 #### How to play?
-1) clone the repository on your PC and run the main.exe script
-2) clone the repository and run the main.py file
+clone the repository and run the main.py file
 
 What are the available features?
 Like in the original Minesweeper, you can open the tiles by pressing the left mouse button. 
